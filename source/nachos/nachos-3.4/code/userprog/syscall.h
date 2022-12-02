@@ -38,6 +38,9 @@
 #define SC_PrintChar 47
 #define SC_ReadString 48
 #define SC_PrintString 49
+#define SC_CreateFile 50
+#define SC_Open 51
+#define SC_Close 52
 
 #ifndef IN_ASM
 
@@ -138,6 +141,11 @@ char ReadChar();
 void PrintChar(char ch);
 void ReadString(char buff[], int len);
 void PrintString(char buff[]);
+
+typedef int OpenFileId;
+int CreateFile(char *name);
+OpenFileId Open(char *name, int type);
+// int Close(OpenFileId id);
 
 #endif /* IN_ASM */
 

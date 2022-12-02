@@ -118,7 +118,7 @@ void Exception_ReadInt()
 
     for (int i = 0; i < maxlen; i++) {
         char c = 0;
-        ptrSynchConsole->Read(&c,1);
+        gSynchConsole->Read(&c,1);
         if (c >= '0' && c <= '9') num_string[i] = c;
         else if (i == 0 && c == '-') num_string[i] = c;
         else break;
@@ -147,7 +147,7 @@ void Exception_PrintInt()
     } while (n);
     while (j) 
     	num_string[i++] = '0' + (char)tmp[--j];
-    ptrSynchConsole->Write(num_string,i);
+    gSynchConsole->Write(num_string,i);
     machine->WriteRegister(2, 0);
 }
 
@@ -155,14 +155,14 @@ void Exception_PrintInt()
 void Exception_ReadChar()
 {
     char ch = 0;
-    ptrSynchConsole->Read(&ch,1);
+    gSynchConsole->Read(&ch,1);
     machine->WriteRegister(2, (int)ch);
 }
 
 void Exception_PrintChar()
 {
     char ch = (char)machine->ReadRegister(4);
-    ptrSynchConsole->Write(&ch,1);
+    gSynchConsole->Write(&ch,1);
     machine->WriteRegister(2, 0);
 }
 

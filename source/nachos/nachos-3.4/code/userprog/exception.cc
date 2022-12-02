@@ -127,7 +127,7 @@ void Exception_ReadInt()
     // remove front space
     while (c == ' ')
     {
-        ptrSynchConsole->Read(&c, 1);
+        gSynchConsole->Read(&c, 1);
     }
     int length = 0;
     // check sign
@@ -147,12 +147,12 @@ void Exception_ReadInt()
     }
 
     // read full number
-    ptrSynchConsole->Read(&c, 1);
+    gSynchConsole->Read(&c, 1);
     while (c <= '9' && c >= '0' && length < maxlen)
     {
         num_string[length] = c;
         length++;
-        ptrSynchConsole->Read(&c, 1);
+        gSynchConsole->Read(&c, 1);
     }
 
     for (int i = 0; i < length; i++)
@@ -193,21 +193,21 @@ void Exception_PrintInt()
     } while (n);
     while (j) // chuyển mảng int sang char
         num_string[i++] = '0' + (char)tmp[--j];
-    ptrSynchConsole->Write(num_string, i); // ghi ra màn hình char và độ dài mảng
+    gSynchConsole->Write(num_string, i); // ghi ra màn hình char và độ dài mảng
     machine->WriteRegister(2, 0);
 }
 
 void Exception_ReadChar()
 {
     char ch = 0;
-    ptrSynchConsole->Read(&ch, 1); // đọc 1 ký tự từ console
+    gSynchConsole->Read(&ch, 1); // đọc 1 ký tự từ console
     machine->WriteRegister(2, (int)ch);
 }
 
 void Exception_PrintChar()
 {
     char ch = (char)machine->ReadRegister(4); // lấy ký tự đã được gán sẵn
-    ptrSynchConsole->Write(&ch, 1);           // ghi 1 ký tự ra màn hình console
+    gSynchConsole->Write(&ch, 1);             // ghi 1 ký tự ra màn hình console
     machine->WriteRegister(2, 0);
 }
 
@@ -218,7 +218,7 @@ void Exception_ReadString()
     addr = machine->ReadRegister(4);
     maxLength = machine->ReadRegister(5);
 
-    ptrSynchConsole->Read(buffer, maxLength);
+    gSynchConsole->Read(buffer, maxLength);
 
     System2User(addr, maxLength, buffer);
 }
@@ -231,8 +231,47 @@ void Exception_PrintString()
 
     buffer = User2System(addr, 255);
 
-    ptrSynchConsole->Write(buffer, strlen(buffer));
+    gSynchConsole->Write(buffer, strlen(buffer));
     delete[] buffer;
+}
+
+void Exception_CreateFile()
+{
+    int addr;
+    char *fileName;
+
+    addr = machine->ReadRegister(4);
+
+    fileName = User2System(addr, 33); // MaxFileLength là = 32
+
+    if (fileName == NULL)
+    {
+        printf("\nKhong du bo nho");
+        DEBUG("a", "\nKhong du bo nho");
+        machine->WriteRegister(2, -1); // Nếu lỗi thì ghi vào thanh ghi số 2 giá trị -1
+    }
+
+    if (strlen(fileName) == 0)
+    {
+        printf("\nTen file khong duoc trong");
+        DEBUG("a", "\nTen file khong duoc trong");
+        machine->WriteRegister(2, -1); // Nếu lỗi thì ghi vào thanh ghi số 2 giá trị -1
+    }
+
+    // Create file with size = 0
+    // Dùng đối tượng fileSystem của lớp OpenFile để tạo file
+    if (fileSystem->Create(fileName, 0) == -1)
+    {
+        printf("\nXay ra loi khi tao file (%s)", fileName);
+        machine->WriteRegister(2, -1);
+    }
+
+    machine->WriteRegister(2, 0); // Nếu không có lỗi ghi vào thanh ghi số 2
+    delete[] fileName;            // Giải phóng vùng nhớ cho filename
+}
+
+void Exception_Close()
+{
 }
 
 void ExceptionHandler(ExceptionType which)
@@ -281,6 +320,12 @@ void ExceptionHandler(ExceptionType which)
             Exception_PrintString();
             Increase_ProgramCounter();
             return;
+        case SC_CreateFile:
+            Exception_CreateFile();
+            Increase_ProgramCounter();
+            return;
+        case SC_Close:
+
         default:
             printf("\n Unexpected user mode exception (%d %d)", which,
                    type);

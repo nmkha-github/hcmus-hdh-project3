@@ -119,3 +119,9 @@ ascii.o: ascii.c
 ascii: ascii.o start.o
 		$(LD) $(LDFLAGS) start.o ascii.o -o ascii.coff
 		../bin/coff2noff ascii.coff ascii
+
+createfile.o: createfile.c
+	$(CC) $(CFLAGS) -c createfile.c
+createfile: createfile.o start.o
+	$(LD) $(LDFLAGS) start.o createfile.o -o createfile.coff
+	../bin/coff2noff createfile.coff createfile
