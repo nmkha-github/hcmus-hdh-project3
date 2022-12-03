@@ -109,6 +109,9 @@ void Write(char *buffer, int size, OpenFileId id);
  */
 int Read(char *buffer, int size, OpenFileId id);
 
+/* Close the file, we're done reading and writing to it. */
+void Close(OpenFileId id);
+
 /* User-level thread operations: Fork and Yield.  To allow multiple
  * threads to run within a user program.
  */
@@ -135,7 +138,7 @@ void PrintString(char buff[]);
 
 int CreateFile(char *name);
 OpenFileId Open(char *name, int type);
-int Close(OpenFileId id);
+// int Close(OpenFileId id);
 
 #endif /* IN_ASM */
 
