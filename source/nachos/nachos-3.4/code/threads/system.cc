@@ -156,6 +156,7 @@ void Initialize(int argc, char **argv)
 
 #ifdef USER_PROGRAM
     machine = new Machine(debugUserProg); // this must come first
+    gSynchConsole = new SynchConsole();
 #endif
 
 #ifdef FILESYS
@@ -170,7 +171,6 @@ void Initialize(int argc, char **argv)
     postOffice = new PostOffice(netname, rely, 10);
 #endif
 
-    gSynchConsole = new SynchConsole();
 }
 
 //----------------------------------------------------------------------
@@ -185,6 +185,7 @@ void Cleanup()
 #endif
 
 #ifdef USER_PROGRAM
+    delete gSynchConsole;
     delete machine;
 #endif
 
@@ -196,7 +197,6 @@ void Cleanup()
     delete synchDisk;
 #endif
 
-    delete gSynchConsole;
 
     delete timer;
     delete scheduler;
