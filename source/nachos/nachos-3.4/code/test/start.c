@@ -186,6 +186,14 @@ PrintString:
 	j		$31
 	.end	PrintString
 
+	.globl	CreateFile
+	.ent	CreateFile
+CreateFile:
+	addiu	$2,	$0,	SC_CreateFile
+	syscall
+	j		$31
+	.end	CreateFile
+
 /* dummy function to keep gcc happy */
         .globl  __main
         .ent    __main

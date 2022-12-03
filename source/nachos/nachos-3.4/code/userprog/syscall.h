@@ -39,8 +39,6 @@
 #define SC_ReadString 48
 #define SC_PrintString 49
 #define SC_CreateFile 50
-#define SC_Open 51
-#define SC_Close 52
 
 #ifndef IN_ASM
 

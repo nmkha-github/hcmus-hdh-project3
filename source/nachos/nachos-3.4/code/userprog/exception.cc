@@ -247,14 +247,14 @@ void Exception_CreateFile()
     if (fileName == NULL)
     {
         printf("\nKhong du bo nho");
-        DEBUG("a", "\nKhong du bo nho");
+        DEBUG('a', "\nKhong du bo nho");
         machine->WriteRegister(2, -1); // Nếu lỗi thì ghi vào thanh ghi số 2 giá trị -1
     }
 
     if (strlen(fileName) == 0)
     {
         printf("\nTen file khong duoc trong");
-        DEBUG("a", "\nTen file khong duoc trong");
+        DEBUG('a', "\nTen file khong duoc trong");
         machine->WriteRegister(2, -1); // Nếu lỗi thì ghi vào thanh ghi số 2 giá trị -1
     }
 

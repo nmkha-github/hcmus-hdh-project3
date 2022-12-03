@@ -29,14 +29,13 @@ SynchDisk *synchDisk;
 
 #ifdef USER_PROGRAM // requires either FILESYS or FILESYS_STUB
 Machine *machine;   // user program memory and registers
+/*define gSynchConsole pointer*/
+SynchConsole *gSynchConsole;
 #endif
 
 #ifdef NETWORK
 PostOffice *postOffice;
 #endif
-
-/*define gSynchConsole pointer*/
-SynchConsole *gSynchConsole;
 
 // External definition, to allow us to take a pointer to this function
 extern void Cleanup();
