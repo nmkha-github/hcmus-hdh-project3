@@ -140,10 +140,9 @@ void PrintChar(char ch);
 void ReadString(char buff[], int len);
 void PrintString(char buff[]);
 
-typedef int OpenFileId;
 int CreateFile(char *name);
 OpenFileId Open(char *name, int type);
-// int Close(OpenFileId id);
+int Close(OpenFileId id);
 
 #endif /* IN_ASM */
 
