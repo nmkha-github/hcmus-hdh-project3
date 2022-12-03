@@ -163,7 +163,7 @@ Initialize(int argc, char **argv)
     postOffice = new PostOffice(netname, rely, 10);
 #endif
 
-    ptrSynchConsole = new SynchConsole();
+    gSynchConsole = new SynchConsole();
 }
 
 
@@ -191,7 +191,7 @@ Cleanup()
     delete synchDisk;
 #endif
     
-    delete ptrSynchConsole;
+    delete gSynchConsole;
 
     delete timer;
     delete scheduler;
