@@ -142,7 +142,7 @@ void PrintString(char buff[]);
 
 int CreateFile(char *name);
 OpenFileId Open(char *name, int type);
-int Close(OpenFileId id);
+// int Close(OpenFileId id);
 
 #endif /* IN_ASM */
 
