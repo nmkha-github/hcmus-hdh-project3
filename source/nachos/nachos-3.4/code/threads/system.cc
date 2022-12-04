@@ -43,10 +43,10 @@ Machine *machine;   // user program memory and registers
 /*define gSynchConsole pointer*/
 SynchConsole *gSynchConsole;
 
-extern Semaphore *addrLock;	// semaphore
-extern BitMap *gPhysPageBitMap;	// quan ly cac frame
-extern PTable *pTab;		// quan ly bang tien trinh
-extern STable *semTab;		// quan ly semaphore
+Semaphore *addrLock;			// semaphore
+BitMap *gPhysPageBitMap;	// dùng để quản lí các frame
+PTable *pTab;						// dùng để quản lí bằng tiến trình
+STable *semTab;					// dùng để quản lí semaphore
 #endif
 
 #ifdef NETWORK
