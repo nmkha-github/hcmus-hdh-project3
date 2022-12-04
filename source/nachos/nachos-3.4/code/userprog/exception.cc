@@ -445,7 +445,7 @@ void Exception_Write()
     int size = lastPositionInFile - firstPositionInFile;
 
     //Xét với file chỉ đọc và viết thì trả về số byte thật sự
-    if (fileSystem->openf[id]->type == 0)
+    if (fileSystem->openFileTable[id]->type == 0)
     {
         if (size > 0)
         {
@@ -456,7 +456,7 @@ void Exception_Write()
     }
 
     //Với file stdout
-    if (fileSystem->openf[id]->type == 3) 
+    if (fileSystem->openFileTable[id]->type == 3) 
     {
         int i;
         for (i = 0; buffer[i] != '\0'; i++)
