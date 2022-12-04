@@ -26,12 +26,12 @@ public:
      PTable(int = 10);           // Khoi tao size doi tuong pcb de luu size process.Gan gia tri ban dau la null.
     ~PTable();                  // Huy cac doi tuong da tao
 		
-    int ExecUpdate(char*);      
-    int ExitUpdate(int);        
-    int JoinUpdate(int);        // Xử lý cho system call SC_Join
+    int ExecUpdate(char* name);      
+    int ExitUpdate(int exitCode);        
+    int JoinUpdate(int id);        // Xử lý cho system call SC_Join
 
     int GetFreeSlot();          // tìm free slot để lưu thông tin cho tiến trình mới
-    bool IsExist(int pid);      // kiểm tra tồn tại processID này không?
+    bool IsExist(int pid);      // kiểm tra có tồn tại processID hay không
     
     void Remove(int pid);       // khi tiến trình kết thúc, delete processID ra khỏi mảng quản lý nó
 

@@ -493,7 +493,7 @@ void Exception_Exec()
 
     delete openFile;
 
-    // Return child process id
+    // id của tiểu trình
     int id = pTab->ExecUpdate(name); 
     machine->WriteRegister(2, id);
 

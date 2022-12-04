@@ -65,7 +65,7 @@ int PTable::ExecUpdate(char* name)
     // Check if have free slot
 	if(index < 0)
 	{
-		printf("\nPTable::Exec :There is no free slot.\n");
+		printf("\nKhong con slot trong\n");
 		bmsem->V();
 		return -1;
 	}
