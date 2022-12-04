@@ -44,10 +44,11 @@ typedef int OpenFileID;
 				// calls to UNIX, until the real file system
 				// implementation is available
 class FileSystem {
+	public:
 	OpenFile** openFileTable; 
 	int currentFileIndex;
 
-  public:
+  
 	FileSystem(bool format) {
 		openFileTable = new OpenFile*[MAX_FILE];
 		currentFileIndex = 0;
