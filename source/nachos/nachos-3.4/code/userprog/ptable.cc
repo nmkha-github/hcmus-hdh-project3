@@ -2,8 +2,6 @@
 #include "system.h"
 #include "openfile.h"
 
-#define For(i,a,b) for (int i = (a); i < b; ++i)
-
 PTable::PTable(int size)
 {
 
@@ -89,26 +87,20 @@ int PTable::ExecUpdate(char* name)
 
 int PTable::JoinUpdate(int id)
 {
-	// Ta kiểm tra tính hợp lệ của processID id và kiểm tra tiến trình gọi Join có phải là cha của tiến trình
-	// có processID là id hay không. Nếu không thỏa, ta báo lỗi hợp lý và trả về -1.
 	if(id < 0)
 	{
-		printf("\nPTable::JoinUpdate : id = %d", id);
 		return -1;
 	}
-	// Check if process running is parent process of process which joins
+
+	// Kiểm tra tiến trình đang chạy có phải là tiến trình cha của tiến trình tham gia không
 	if(currentThread->processID != pcb[id]->parentID)
 	{
-		printf("\nPTable::JoinUpdate Can't join in process which is not it's parent process.\n");
 		return -1;
 	}
 
     	// Tăng numwait và gọi JoinWait() để chờ tiến trình con thực hiện.
 	// Sau khi tiến trình con thực hiện xong, tiến trình đã được giải phóng
 	pcb[pcb[id]->parentID]->IncNumWait();
-	
-
-	//pcb[id]->boolBG = 1;
 	
 	pcb[id]->JoinWait();
 
