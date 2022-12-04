@@ -72,6 +72,9 @@ class OpenFile {
     
 	int GetCurrentPos() { currentOffset = Tell(file); return currentOffset; }
 	
+	 int currentPos(){
+			return seekPosition;
+		}
     
   private:
     int file;
