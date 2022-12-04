@@ -37,36 +37,89 @@
 
 #include "copyright.h"
 #include "openfile.h"
+#define MAX_FILE 10
+typedef int OpenFileID;
 
 #ifdef FILESYS_STUB 		// Temporarily implement file system calls as 
 				// calls to UNIX, until the real file system
 				// implementation is available
 class FileSystem {
+	OpenFile** openFileTable; 
+	int currentFileIndex;
+
   public:
-    FileSystem(bool format) {}
+	FileSystem(bool format) {
+		openFileTable = new OpenFile*[MAX_FILE];
+		currentFileIndex = 0;
+		for (int i = 0; i < MAX_FILE; ++i)
+		{
+			openFileTable[i] = NULL;
+		}
 
-    bool Create(char *name, int initialSize) { 
-	int fileDescriptor = OpenForWrite(name);
-
-	if (fileDescriptor == -1) return FALSE;
-	Close(fileDescriptor); 
-	return TRUE; 
+		this->Create("stdin", 0);
+		this->Create("stdout", 0);
+		openFileTable[currentFileIndex++] = this->Open("stdin", 2);
+		openFileTable[currentFileIndex++] = this->Open("stdout", 3);    
 	}
 
-    OpenFile* Open(char *name) {
-	  int fileDescriptor = OpenForReadWrite(name, FALSE);
+	~FileSystem(){
+		for (int i = 0; i < MAX_FILE; ++i)
+			if (openFileTable[i] != NULL) 
+				delete[] openFileTable[i];
+		
+		delete[] openFileTable;
+	}
 
-	  if (fileDescriptor == -1) return NULL;
-	  return new OpenFile(fileDescriptor);
-      }
+  bool Create(char *name, int initialSize) { 
+		int fileDescriptor = OpenForWrite(name);
 
-    bool Remove(char *name) { return Unlink(name) == 0; }
+		if (fileDescriptor == -1) return FALSE;
+		Close(fileDescriptor); 
+		return TRUE; 
+	}
+	
+	OpenFile* Open(char *name) 
+	{
+		int fileDescriptor = OpenForReadWrite(name, FALSE);
 
+		if (fileDescriptor == -1) return NULL;
+		return new OpenFile(fileDescriptor);
+	}
+
+	OpenFile* Open(char *name, int type) {
+		int fileDescriptor = OpenForReadWrite(name, FALSE);
+
+		if (fileDescriptor != -1) {
+			return new OpenFile(fileDescriptor, type);
+		}
+
+		return NULL;
+	}
+
+	//Trả về slot đang trống
+	//Nếu không có slot nào trống thì trả về -1
+	int FindFreeSlot()
+	{
+		//Bỏ qua console input và console output
+		for(int i = 2; i < MAX_FILE; i++)
+			if (openFileTable[i] == NULL) 
+				return i;		
+		
+		return -1;
+	}
+	
+
+	bool Remove(char *name) {
+		return Unlink(name) == 0; 
+  }
 };
 
 #else // FILESYS
 class FileSystem {
   public:
+		OpenFile** openFileTable; 
+		int currentFileIndex;
+
     FileSystem(bool format);		// Initialize the file system.
 					// Must be called *after* "synchDisk" 
 					// has been initialized.
@@ -76,6 +129,9 @@ class FileSystem {
 
     bool Create(char *name, int initialSize);  	
 					// Create a file (UNIX creat)
+
+		OpenFile* Open(char *name, int type); 
+		int FindFreeSlot();
 
     OpenFile* Open(char *name); 	// Open a file (UNIX open)
 

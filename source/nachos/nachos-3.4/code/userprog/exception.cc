@@ -242,7 +242,7 @@ void Exception_CreateFile()
 
     addr = machine->ReadRegister(4);
 
-    fileName = User2System(addr, 33); // MaxFileLength là = 32
+    fileName = User2System(addr, 255);
 
     if (fileName == NULL)
     {
@@ -270,8 +270,138 @@ void Exception_CreateFile()
     delete[] fileName;            // Giải phóng vùng nhớ cho filename
 }
 
+void Exception_Open()
+{
+    int addr;
+    int type; 
+    char* filename;
+
+    //Lấy các tham số từ thanh ghi
+    addr = machine->ReadRegister(4); 
+    type = machine->ReadRegister(5); 
+    filename = User2System(addr, 255);
+
+    int freeSlot = fileSystem->FindFreeSlot();
+    
+    if (freeSlot == -1){
+        machine->WriteRegister(2, -1); //Trả lỗi về cho người dùng
+    }
+
+    switch (type){
+    case 0: 
+        fileSystem->openFileTable[freeSlot] = fileSystem->Open(filename, type);
+        if (fileSystem->openFileTable[freeSlot] != NULL)
+        {
+            machine->WriteRegister(2, freeSlot); //trả về vị trí còn trống
+        }
+        break;
+    case 1:
+        fileSystem->openFileTable[freeSlot] = fileSystem->Open(filename, type);
+        if (fileSystem->openFileTable[freeSlot] != NULL) //Mo file thanh cong
+        {
+            machine->WriteRegister(2, freeSlot); //trả về vị trí còn trống
+        }
+        break;
+    case 2:
+        machine->WriteRegister(2, 0);
+        break;
+    case 3:
+        machine->WriteRegister(2, 1);
+        break;
+    }
+ 
+    delete[] filename;
+}
+
 void Exception_Close()
 {
+    int fileId;
+    fileId = machine->ReadRegister(4); 
+    //Chỉ xử lí trong phạm vi bảng mô tả file
+    if (fileId >= 0 && fileId <= 10) 
+    {
+        if (fileSystem->openFileTable[fileId]) 
+        {
+            machine->WriteRegister(2, 0);   //Trả kết quả thành công
+            delete[] fileSystem->openFileTable[fileId]; 
+        }
+    }
+    machine->WriteRegister(2, -1);  // Trả lỗi
+}
+
+void Exception_Read()
+{
+    int addr;
+    int charCount;
+    int id;
+
+    int firstPositionInFile;
+    int lastPositionInFile;
+    char *buffer;
+
+    //Lấy giá trị tham số từ thanh ghi
+    addr = machine->ReadRegister(4);
+    charCount = machine->ReadRegister(5); 
+    id = machine->ReadRegister(6);  
+
+    // Nếu nằm ngoài bảng mô tả thì trả lỗi
+    if (id < 0 || id > 14)
+    {
+        printf("\nFile ID nam ngoai bang mo ta");
+        machine->WriteRegister(2, -1);
+        return;
+    }
+
+    //Kiểm tra file tồn tại
+    if (fileSystem->openFileTable[id] == NULL)
+    {
+        printf("\nFile khong ton tai.");
+        machine->WriteRegister(2, -1);
+        return;
+    }
+
+    if (fileSystem->openFileTable[id]->type == 3) 
+    {
+        printf("\nKhong the read file stdout.");
+        machine->WriteRegister(2, -1);
+        return;
+    }
+
+    buffer = User2System(addr, charCount); 
+    //file stdin 
+    if (fileSystem->openFileTable[id]->type == 2)
+    {
+        // Số byte thực sự đọc được
+        int size = gSynchConsole->Read(buffer, charCount); 
+        System2User(addr, size, buffer); 
+        machine->WriteRegister(2, size); 
+        delete[] buffer;
+        return;
+    }
+
+    firstPositionInFile = fileSystem->openFileTable[id]->currentPos();
+    fileSystem->openFileTable[id]->Read(buffer, charCount);
+    lastPositionInFile = fileSystem->openFileTable[id]->currentPos();
+
+    //Số byte thực sự = lastPositionInFile - firstPositionInFile
+    int size = lastPositionInFile - firstPositionInFile;
+
+    //Trường hợp file khác rỗng
+    if (size > 0){
+        System2User(addr, size, buffer); 
+        machine->WriteRegister(2, size);
+        delete[] buffer;
+        return;
+    }
+
+    //Trường hợp còn lại file null trả về -2
+    machine->WriteRegister(2, -2); 
+    delete[] buffer;
+}
+
+void Exception_Write()
+{
+    
 }
 
 void ExceptionHandler(ExceptionType which)
@@ -324,8 +454,14 @@ void ExceptionHandler(ExceptionType which)
             Exception_CreateFile();
             Increase_ProgramCounter();
             return;
+        case SC_Open:
+            Exception_Open();
+            Increase_ProgramCounter();
+            return;
         case SC_Close:
-
+            Exception_Close();
+            Increase_ProgramCounter();
+            return;
         default:
             printf("\n Unexpected user mode exception (%d %d)", which,
                    type);
