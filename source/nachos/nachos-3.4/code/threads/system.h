@@ -19,6 +19,8 @@
 #include "ptable.h"
 #include "stable.h"
 
+#ifndef SYSTEM_H
+#define SYSTEM_H
 
 // Initialization and cleanup routines
 extern void Initialize(int argc, char **argv); // Initialization,
@@ -35,11 +37,10 @@ extern Timer *timer;								// the hardware alarm clock
 
 #ifdef USER_PROGRAM
 #include "machine.h"
-extern Machine *machine; // user program memory and registers
-// include synchcons.h
 #include "synchcons.h"
 #include "synch.h"
 /*declare gSynchConsole pointer*/
+extern Machine *machine; // user program memory and registers
 extern SynchConsole *gSynchConsole;
 
 extern Semaphore *addrLock;	// semaphore
