@@ -401,6 +401,112 @@ void Exception_Read()
 
 void Exception_Write()
 {
+    int addr;
+    int charCount;
+    int id;
+
+    int firstPositionInFile;
+    int lastPositionInFile;
+    char *buffer;
+
+    //Lấy giá trị tham số từ thanh ghi
+    addr = machine->ReadRegister(4);
+    charCount = machine->ReadRegister(5); 
+    id = machine->ReadRegister(6);  
+
+    // Nếu nằm ngoài bảng mô tả thì trả lỗi
+    if (id < 0 || id > 14)
+    {
+        printf("\nFile ID nam ngoai bang mo ta");
+        machine->WriteRegister(2, -1);
+        return;
+    }
+
+    //Kiểm tra file tồn tại
+    if (fileSystem->openFileTable[id] == NULL)
+    {
+        printf("\nFile khong ton tai.");
+        machine->WriteRegister(2, -1);
+        return;
+    }
+
+    if (fileSystem->openFileTable[id]->type == 1 || fileSystem->openFileTable[id]->type == 2) 
+    {
+        printf("\nKhong the viet file stdin hoac file chi doc.");
+        machine->WriteRegister(2, -1);
+        return;
+    }
+
+    firstPositionInFile = fileSystem->openFileTable[id]->currentPos();
+    fileSystem->openFileTable[id]->Write(buffer, charCount);
+    lastPositionInFile = fileSystem->openFileTable[id]->currentPos();
+
+    //Số byte thực sự = lastPositionInFile - firstPositionInFile
+    int size = lastPositionInFile - firstPositionInFile;
+
+    //Xét với file chỉ đọc và viết thì trả về số byte thật sự
+    if (fileSystem->openf[id]->type == 0)
+    {
+        if (size > 0)
+        {
+            machine->WriteRegister(2, size);   //Trả về số byte thật sự
+            delete[] buffer;
+            return;
+        }
+    }
+
+    //Với file stdout
+    if (fileSystem->openf[id]->type == 3) 
+    {
+        int i;
+        for (i = 0; buffer[i] != '\0'; i++)
+        {
+            gSynchConsole->Write(buffer + i, 1);
+        }
+        machine->WriteRegister(2, i - 1); // Tra ve so byte thuc su write duoc
+        delete[] buffer;
+    }
+}
+
+void Exception_Exec()
+{
+    int addr;
+    addr = machine->ReadRegister(4);	// doc dia chi ten chuong trinh tu thanh ghi r4
+    char* name;
+    name = User2System(addr, 255); // Lay ten chuong trinh, nap vao kernel
+
+    if (name == NULL)
+    {
+        DEBUG('a', "\nKhong du bo nho");
+        printf("\nKhong du bo nho");
+        machine->WriteRegister(2, -1);
+        return;
+    }
+
+    OpenFile *openFile = fileSystem->Open(name);
+    if (openFile == NULL)
+    {
+        printf("\n Khong mo duoc file chuong trinh.");
+        machine->WriteRegister(2,-1);
+        return;
+    }
+
+    delete openFile;
+
+    // Return child process id
+    int id = pTab->ExecUpdate(name); 
+    machine->WriteRegister(2, id);
+
+    delete[] name;
+}
+
+void Exception_Join()
+{
+
+}
+
+void Exception_Exit()
+{
     
 }
 
@@ -460,6 +566,18 @@ void ExceptionHandler(ExceptionType which)
             return;
         case SC_Close:
             Exception_Close();
+            Increase_ProgramCounter();
+            return;
+        case SC_Exec:
+            Exception_Exec();
+            Increase_ProgramCounter();
+            return;
+        case SC_Join:
+            Exception_Join();
+            Increase_ProgramCounter();
+            return;
+        case SC_Exit:
+            Exception_Exit();
             Increase_ProgramCounter();
             return;
         default:

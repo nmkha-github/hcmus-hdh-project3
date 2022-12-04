@@ -7,6 +7,17 @@
 
 #include "copyright.h"
 #include "system.h"
+#include "copyright.h"
+#include "utility.h"
+#include "thread.h"
+#include "scheduler.h"
+#include "interrupt.h"
+#include "stats.h"
+#include "timer.h"
+#include "bitmap.h"
+#include "ptable.h"
+#include "stable.h"
+
 
 // This defines *all* of the global data structures used by Nachos.
 // These are all initialized and de-allocated by this file.
@@ -31,6 +42,11 @@ SynchDisk *synchDisk;
 Machine *machine;   // user program memory and registers
 /*define gSynchConsole pointer*/
 SynchConsole *gSynchConsole;
+
+extern Semaphore *addrLock;	// semaphore
+extern BitMap *gPhysPageBitMap;	// quan ly cac frame
+extern PTable *pTab;		// quan ly bang tien trinh
+extern STable *semTab;		// quan ly semaphore
 #endif
 
 #ifdef NETWORK
